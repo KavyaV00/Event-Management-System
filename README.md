@@ -8,7 +8,7 @@ It gives information about all the requirements of services and products of the 
 Option for users to give feedback.
 Vendor -Specific List: Generate specialized list of products and services ordered from a specific vendor.
 
-Tech stack Used: 
-SQLAlchemy
-Python
-Flask
+**Tech stack Used:** 
+* SQLAlchemy
+* Python
+* Flask
