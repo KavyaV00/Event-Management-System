@@ -1,4 +1,4 @@
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response,session,abort,redirect,render_template
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, date
 from flask_admin import Admin
@@ -96,13 +96,35 @@ class DecorationAdminView(ModelView):   ### To upload image, but image not getti
 ### Admin Permissions
 
 admin = Admin(app)
-admin.add_view(ModelView(Venue, db.session))
-admin.add_view(ModelView(Food, db.session))
+class SecureModelView(ModelView):
+    def is_accessible(self):
+        if "logged_in" in session:
+            return True
+        else:
+            abort(403)
+
+admin.add_view(SecureModelView(Venue, db.session))
+admin.add_view(SecureModelView(Food, db.session))
 # admin.add_view(ModelView(Decoration, db.session))
-admin.add_view(ModelView(Band, db.session))
-admin.add_view(ModelView(Bookings, db.session))
-admin.add_view(ModelView(Manager, db.session))  ### Maybe not show the password, just viewing list of managers
+admin.add_view(SecureModelView(Band, db.session))
+admin.add_view(SecureModelView(Bookings, db.session))
+admin.add_view(SecureModelView(Manager, db.session))  ### Maybe not show the password, just viewing list of managers
 admin.add_view(DecorationAdminView(Decoration, db.session))
+
+@app.route("/alogin",methods=['GET','POST'])
+def alogin():
+    if request.method=='POST':
+        if request.form.get('Username')== "Admin" and request.form.get('Password')=='Admin':
+            session['logged_in']=True
+            return redirect("/admin")
+        else:
+            return render_template("/admin/alogin.html",failed=True)
+    return render_template("/admin/alogin.html")
+
+@app.route("/alogout")
+def alogout():
+    session.clear()
+    return redirect("/alogin")
 
 ### Admin authorization - A
 
