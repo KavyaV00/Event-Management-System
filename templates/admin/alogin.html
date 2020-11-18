@@ -1,0 +1,24 @@
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+    <title>Login</title>
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700">
+    <link rel="stylesheet" href="/static/alogin.css">
+
+</head>
+    <div id="login">
+      <form name='form-login' method="POST">
+        <p style="padding-left: 95px; color: white; font-size: large";>ADMIN LOGIN</p>
+        <span class="fontawesome-user"></span>
+          <input type="text" id="user" name="Username"placeholder="Username">
+       
+        <span class="fontawesome-lock"></span>
+          <input type="password" id name="Password" placeholder="Password" required>
+        {% if failed %}
+          <center><small style="color:red;">Authorization not successful</small></center>
+        {% endif %}
+        <input type="submit" value="Login">
+
+</form>
+</html>
