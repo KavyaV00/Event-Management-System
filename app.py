@@ -6,20 +6,34 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.form.upload import FileUploadField
 from wtforms.validators import ValidationError
 import imghdr
+from flask_login import login_user, current_user, logout_user, login_required  # issac
+from flask_login import UserMixin, LoginManager
+from flask_bcrypt import Bcrypt
+ #issac-cir
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db' 
 app.config['SECRET_KEY'] = 'abababab'
 db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)  # issac
+login_manager = LoginManager(app)
+login_manager.login_view = "login"
+login_manager.login_message_category = "info"
 
-
+@login_manager.user_loader #issac
+def load_user(user_id):
+    return Manager.query.get(int(user_id))
 ### Database
 
 class Manager(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    # manager_name = db.Column(db.String(25)) #issac
+    password = db.Column(db.String(20), nullable=False)
     manager_name = db.Column(db.String(25))
-    password = db.Column(db.String(20)) 
+    # password = db.Column(db.String(20)) 
 
 class Venue(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -65,6 +79,7 @@ class Bookings(db.Model):
     status = db.Column(db.String(20), default='Pending')
     manager_id = db.Column(db.Integer, db.ForeignKey('manager.id'))
 
+from forms import RegistrationForm, LoginForm #issac
 class DecorationAdminView(ModelView):   ### To upload image, but image not getting uploaded. getattr() returning None
 
     def picture_validation(form, field):
@@ -126,6 +141,46 @@ def alogout():
     session.clear()
     return redirect("/alogin")
 
+@app.route("/register", methods=['GET', 'POST'])  # issac
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        manager = Manager(username=form.username.data, email=form.email.data, password=hashed_password)
+        db.session.add(manager)
+        db.session.commit()
+        flash('Your account has been created! You are now able to log in', 'success')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form) #issac
+
+
+@app.route("/login", methods=['GET', 'POST'])   #issac
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        manager = Manager.query.filter_by(email=form.email.data).first()
+        if manager and bcrypt.check_password_hash(manager.password, form.password.data):
+            login_user(manager, remember=form.remember.data)
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(url_for('home'))
+        else:
+            flash('Login Unsuccessful. Please check email and password', 'danger')
+    return render_template('login.html', title='Login', form=form)
+
+@app.route("/home") #issac
+@login_required
+def home():
+    return "Hello Manager!"
+    # render_template('home.html', posts=posts)
+@app.route("/logout") #issac
+def logout():
+    logout_user()
+    flash('You have been logged out!', 'success')
+    return redirect(url_for('login'))
 ### Admin authorization - A
 
 # class AdminView(ModelView):
