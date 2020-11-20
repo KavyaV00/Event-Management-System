@@ -26,13 +26,13 @@ def load_user(user_id):
     return Manager.query.get(int(user_id))
 ### Database
 
-class Manager(db.Model):
+class Manager(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     # manager_name = db.Column(db.String(25)) #issac
     password = db.Column(db.String(20), nullable=False)
-    manager_name = db.Column(db.String(25))
+    manager_name = db.Column(db.String(25)) 
     # password = db.Column(db.String(20)) 
 
 class Venue(db.Model):
