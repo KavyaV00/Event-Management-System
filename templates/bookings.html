@@ -1,0 +1,114 @@
+{% extends 'bookbase.html' %}
+
+{%block body%}
+<!-- Anna -->
+
+
+<br>
+<div class="container theme-showcase col-sm-6 col-sm-offset-3" role="main">
+
+    <div class="row">
+      <div>
+
+        <div class="panel panel-primary">
+
+          <div class="panel-heading">
+            <h3 class="panel-title">Book</h3>
+          </div>
+
+          <div class="panel-body">
+
+            <form method="POST" action="">
+              <div class="form-group">
+                <div class="form-group">
+                    <label for="event">Event
+                
+                        <input type="text" class="form-control" id="event" name="event" placeholder="" required>
+                    </label>
+                </div> 
+                
+
+                <div class="form-group">
+                    <label for="venue">Venue
+                        <select name="venue">
+                        <!-- <input type="text" class="form-control" id="venue" name="venue" placeholder="" required> -->
+                    {% for v in venue %}
+                    <option value= "{{v.venue_name}}">{{v.venue_name}}</option>
+                   {% endfor%}
+                </select>
+                    </label>
+                </div> 
+
+                 <div class="form-group">
+                    <label for="attendees">Count of Attendees
+                        <input type="number" class="form-control" id="attendees" name="attendees" placeholder="" required>
+                    </label>
+                </div>
+
+            <div class="form-group"></div>
+                <div class="form-group">
+                    <label for="date">Enter date
+                        <input type="date" class="form-control" id="date" name="date" placeholder="" required>
+                    </label>
+                </div>
+              
+                <div class="form-group">
+                    <label for="time">Enter time
+                        <input type="time" class="form-control" id="time" name="time" placeholder="" required>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="totime">Upto time
+                        <input type="time" class="form-control" id="totime" name="totime" placeholder="" required>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="cuisine">Cuisine
+                        <!-- <input type="text" class="form-control" id="cuisine" name="cuisine" placeholder="" required> -->
+                        <select name="cuisine">
+                           
+                            {% for f in food %}
+                            <option value= "{{f.cuisine}}">{{f.cuisine}}</option>
+                           {% endfor%}
+                        </select> 
+                    </label>
+                </div> 
+                <div class="form-group">
+                    <label for="fitems">Food items
+                        <select name="fitems">
+                           
+                        {% for f in food %}
+                        <option value= "{{f.food_items}}">{{f.food_items}}</option>
+                       {% endfor%}
+                    </select>
+                    </label>
+                </div> 
+                <div class="form-group">
+                    <label for="ftype">Food type
+                        <input type="text" class="form-control" id="ftype" name="ftype" placeholder="" required>
+                    </label>
+                </div> 
+                <div class="form-group">
+                    <label for="band">Band Name
+                        <!-- <input type="text" class="form-control" id="band" name="band" placeholder="" required> -->
+                        <select name="band">
+                           
+                            {% for b in band %}
+                            <option value= "{{b.band_name}}">{{b.band_name}}</option>
+                           {% endfor%}
+                        </select>
+                    </label>
+                </div> 
+                
+                <input type="" id="id" name="id" placeholder="" style="display: none;">
+              
+              <button type="submit" class="btn btn-primary">Book</button>
+            </div>
+            </form>
+            </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  {% endblock %}
