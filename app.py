@@ -10,10 +10,11 @@ from flask_login import login_user, current_user, logout_user, login_required  #
 from flask_login import UserMixin, LoginManager
 from flask_bcrypt import Bcrypt
  #issac-cir
+from datetime import datetime #Anna
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db' 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///newdb.db' #changed db #Anna
 app.config['SECRET_KEY'] = 'abababab'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)  # issac
@@ -39,8 +40,8 @@ class Venue(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     venue_name = db.Column(db.String(50))
     capacity = db.Column(db.Integer) 
-    From = db.Column(db.Time)
-    to = db.Column(db.Time)
+    From = db.Column(db.DateTime) #Anna
+    to = db.Column(db.DateTime)   #Anna
     cost = db.Column(db.Integer)
 
 class Food(db.Model): 
@@ -69,8 +70,8 @@ class Bookings(db.Model):
     venue_name = db.Column(db.String(50))
     attendees = db.Column(db.Integer)
     date = db.Column(db.Date)
-    _from = db.Column(db.Time)
-    _to = db.Column(db.Time)
+    _from = db.Column(db.DateTime) #Anna
+    _to = db.Column(db.DateTime)   #Anna
     theme = db.Column(db.String(50))
     cuisine = db.Column(db.String(20))
     food_items = db.Column(db.String(50))
@@ -110,7 +111,7 @@ class DecorationAdminView(ModelView):   ### To upload image, but image not getti
    
 ### Admin Permissions
 
-admin = Admin(app)
+admin = Admin(app, template_mode='bootstrap4') #Anna changed Admin styling
 class SecureModelView(ModelView):
     def is_accessible(self):
         if "logged_in" in session:
@@ -181,6 +182,46 @@ def logout():
     logout_user()
     flash('You have been logged out!', 'success')
     return redirect(url_for('login'))
+
+#Anna
+@app.route('/bookings')
+@app.route('/theme')
+def theme():
+    dec = Decoration.query.all()
+    return render_template('theme.html',dec=dec)
+# @app.route('/addtheme/<id>',methods=['GET','POST'])
+@app.route('/bookings/<name>',methods=['GET','POST'])
+def bookings(name):
+    
+    if request.method == 'POST':
+        event = request.form['event']
+        venue = request.form['venue']
+        attendees = request.form['attendees']
+        date = request.form['date']
+        time = request.form['time']
+        totime = request.form['totime']
+        cuisine = request.form['cuisine']
+        fitems = request.form['fitems']
+        ftype = request.form['ftype']
+        band = request.form['band']
+        db_date = datetime.strptime(date,'%Y-%m-%d')
+        time = datetime.strptime(time,'%H:%M')
+        totime = datetime.strptime(totime,'%H:%M')
+
+        # finaldate = datetime.strftime(db_date,'%Y%m%d')
+        # print(finaldate)
+        theme_obj = Bookings(event_name=event,venue_name=venue,attendees=attendees, \
+                                date=db_date,_from=time,_to=totime,theme=name,cuisine=cuisine,\
+                                food_items=fitems,food_type=ftype,band_name=band)
+        db.session.add(theme_obj)
+        db.session.commit()
+    venue_obj = Venue.query.all()
+    food_obj= Food.query.all()
+    band = Band.query.all()
+    return render_template('bookings.html',venue=venue_obj,food=food_obj,band=band)
+#EndAnna
+
+
 ### Admin authorization - A
 
 # class AdminView(ModelView):
