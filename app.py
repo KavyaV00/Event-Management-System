@@ -1,4 +1,5 @@
 from flask import Flask, request, make_response,session,abort,redirect,render_template, url_for, flash
+from flask_mail import Mail,Message
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, date
 from flask_admin import Admin
@@ -16,6 +17,12 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///newdb.db' #changed db #Anna
 app.config['SECRET_KEY'] = 'abababab'
+app.config['MAIL_SERVER']= 'smtp.gmail.com'
+app.config['MAIL_PORT']=465
+app.config['MAIL_USERNAME']="event2381@gmail.com"
+app.config['MAIL_PASSWORD']="admin2381"
+app.config['MAIL_USE_TLS']=False
+app.config['MAIL_USE_SSL']=True
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)  # issac
 login_manager = LoginManager(app)
@@ -183,7 +190,9 @@ def logout():
     flash('You have been logged out!', 'success')
     return redirect(url_for('login'))
 
-#Anna
+
+#Anna/swathi
+mail=Mail(app)
 @app.route('/bookings')
 @app.route('/theme')
 def theme():
@@ -193,7 +202,7 @@ def theme():
 @app.route('/bookings/<name>',methods=['GET','POST'])
 def bookings(name):
     
-    if request.method == 'POST':
+     if request.method == 'POST':
         event = request.form['event']
         venue = request.form['venue']
         attendees = request.form['attendees']
@@ -207,19 +216,32 @@ def bookings(name):
         db_date = datetime.strptime(date,'%Y-%m-%d')
         time = datetime.strptime(time,'%H:%M')
         totime = datetime.strptime(totime,'%H:%M')
+        manager_id=current_user.get_id()
 
         # finaldate = datetime.strftime(db_date,'%Y%m%d')
         # print(finaldate)
         theme_obj = Bookings(event_name=event,venue_name=venue,attendees=attendees, \
                                 date=db_date,_from=time,_to=totime,theme=name,cuisine=cuisine,\
-                                food_items=fitems,food_type=ftype,band_name=band)
+                                food_items=fitems,food_type=ftype,band_name=band,manager_id=manager_id,status="Confirmed")
         db.session.add(theme_obj)
         db.session.commit()
+        print(manager_id)
+        email=Manager.query.get(manager_id).email
+        print(email)
+        booking=Bookings.query.filter_by(id=manager_id).all()
+        for booking in booking:
+            msg="Booking successful!!\n\n\nBooking Details:\n"+ "Event: " + booking.event_name + "\nVenue: "+booking.venue_name + "\nDate: " + booking.date.strftime("%d/%m/%Y") \
+            + "\nTime: " + booking._from.strftime("%H:%M") + "-" + booking._to.strftime("%H:%M") + "\nTheme: " + booking.theme + "\nCuisine: " + booking.cuisine \
+            + "\nBand: " + booking.band_name + "\n\n\nThank You for using our service!"
+        subject="Booking Info"
+        message=Message(subject=subject,sender="event2381@gmail.com",recipients=[email])
+        message.body=msg
+        mail.send(message)
     venue_obj = Venue.query.all()
     food_obj= Food.query.all()
     band = Band.query.all()
     return render_template('bookings.html',venue=venue_obj,food=food_obj,band=band)
-#EndAnna
+#EndAnna/swathi
 
 
 ### Admin authorization - A
