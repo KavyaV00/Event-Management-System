@@ -83,6 +83,7 @@ class Bookings(db.Model):
     cuisine = db.Column(db.String(20))
     food_items = db.Column(db.String(50))
     food_type = db.Column(db.String(10))
+    beverages = db.Column(db.String(50)) #Anna
     band_name = db.Column(db.String(25))
     status = db.Column(db.String(20), default='Pending')
     manager_id = db.Column(db.Integer, db.ForeignKey('manager.id'))
@@ -240,7 +241,12 @@ def bookings(name):
     venue_obj = Venue.query.all()
     food_obj= Food.query.all()
     band = Band.query.all()
-    return render_template('bookings.html',venue=venue_obj,food=food_obj,band=band)
+    
+    l=[]
+    for x in food_obj:
+        l.append(x.food_items)
+    print(l)
+    return render_template('bookings.html',venue=venue_obj,food=food_obj,band=band,l=l)
 #EndAnna/swathi
 
 
