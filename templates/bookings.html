@@ -85,17 +85,7 @@
                         </select> 
                     </label>
                 </div> 
-                <!-- modified -->
-                <input type="" id="id" name="id" placeholder="" style="display: none;">
-                <select name="fitems"style="display: none;">
-                        
-                    {% for f in food %}
-                    <!-- {%if f.id == fid %} -->
-                    <option value= "{{f.food_items}}">{{f.food_items}}</option>
-                    <!-- {% endif %} -->
-                   {% endfor%}
-                </select>
-                <!-- ==== -->
+                
                 <div class="form-group">
                     <label for="fitems">Food items
                         <input type="text" class="form-control" id="fitems" name="fitems" placeholder="" required>
