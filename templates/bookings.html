@@ -3,6 +3,18 @@
 {%block body%}
 <!-- Anna -->
 
+<script>
+    function filter_cuisine(cuisineid){
+        console.log(cuisineid)
+    //    var fid = cuisineid;
+       var l = {{ l|safe }}
+       var fitemname = l[cuisineid-1];
+       document.getElementById('fitems').value = fitemname;  
+
+
+       }
+
+</script>
 
 <br>
 <div class="container theme-showcase col-sm-6 col-sm-offset-3" role="main">
@@ -65,22 +77,41 @@
                 <div class="form-group">
                     <label for="cuisine">Cuisine
                         <!-- <input type="text" class="form-control" id="cuisine" name="cuisine" placeholder="" required> -->
-                        <select name="cuisine">
+                        <select name="cuisine"  onchange="filter_cuisine(this.value)">
                            
                             {% for f in food %}
-                            <option value= "{{f.cuisine}}">{{f.cuisine}}</option>
+                            <option value= "{{f.id}}">{{f.cuisine}}</option>
                            {% endfor%}
                         </select> 
                     </label>
                 </div> 
+                <!-- modified -->
+                <input type="" id="id" name="id" placeholder="" style="display: none;">
+                <select name="fitems"style="display: none;">
+                        
+                    {% for f in food %}
+                    <!-- {%if f.id == fid %} -->
+                    <option value= "{{f.food_items}}">{{f.food_items}}</option>
+                    <!-- {% endif %} -->
+                   {% endfor%}
+                </select>
+                <!-- ==== -->
                 <div class="form-group">
                     <label for="fitems">Food items
-                        <select name="fitems">
+                        <input type="text" class="form-control" id="fitems" name="fitems" placeholder="" required>
+                        
+                        
+                    </label>
+                </div> 
+                <div class="form-group">
+                    <label for="bev">Beverages
+                        <!-- <input type="text" class="form-control" id="bev" name="bev" placeholder="" required> -->
+                        <select name="bev">
                            
-                        {% for f in food %}
-                        <option value= "{{f.food_items}}">{{f.food_items}}</option>
-                       {% endfor%}
-                    </select>
+                            {% for b in food %}
+                            <option value= "{{b.beverages}}">{{b.beverages}}</option>
+                           {% endfor%}
+                        </select>
                     </label>
                 </div> 
                 <div class="form-group">
@@ -88,6 +119,7 @@
                         <input type="text" class="form-control" id="ftype" name="ftype" placeholder="" required>
                     </label>
                 </div> 
+                
                 <div class="form-group">
                     <label for="band">Band Name
                         <!-- <input type="text" class="form-control" id="band" name="band" placeholder="" required> -->
