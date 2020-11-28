@@ -4,12 +4,12 @@
 {% block body %}
 <div class="row">
 	{% for x in dec %}
-	<div class="col-lg-3">
+	<div class="col-lg-3" style="padding-left: 30px; padding-right: 0px;">
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 			<div class="thumbnail">
 				
                 <a href="#">
-					<img src="{{ x.url_pic }}" alt="">
+					<img src="{{ x.url_pic }}" alt="" class="theme_img">
 				</a>
 				<div class="caption text-center">
 					<h4 class="bold">{{ x.theme_name }}</h4>
