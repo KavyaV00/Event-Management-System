@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+{% endblock %}
+{% block body %}
+	<div class="row" style="margin-left: auto; margin-right: auto; margin-top: 20px;">
+		<div class="col-12">
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col justify-content-center"></th>
+                    <th scope="col justify-content-center">Event Name</th>
+                    <th scope="col justify-content-center">Date</th>
+                    <th scope="col justify-content-center">Timing</th>
+                    <th scope="col justify-content-center">Venue</th>
+                    <th scope="col justify-content-center">Attendees</th>
+                    <th scope="col justify-content-center">Cuisine</th>
+                    <th scope="col justify-content-center">Food items</th>
+                    <th scope="col justify-content-center">Theme</th>
+                    <th scope="col justify-content-center">Band</th>  
+                    <th scope="col justify-content-center">Cost</th>
+                    <th scope="col justify-content-center">Status</th> 
+                </tr>
+                </thead> 
+                
+                    <tbody>
+                        {% for booking in bookings %} 
+                        {% set x=booking.venue_name %} 
+                    <tr>
+                        <td scope="row">{{loop.index}}</td> 
+                        <td>{{booking.event_name}}</td>
+                        <td>{{booking.date}}</td>
+                        <td> {{booking._from.time()}} to {{booking._to.time()}}</td>
+                        <td>
+                            <a href="#venue" data-some-value="{{booking.venue_name}}" data-toggle="modal" data-target="#venue" class="image venue_modal">{{booking.venue_name}}</a>
+                            
+                            <!-- Venue Modal -->
+                            <div class="modal fade" id="venue" tabindex="-1" aria-labelledby="venue" aria-hidden="true">
+                                <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="_title"></h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <img src="" alt="" height="300px" id="_image">
+                                </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{booking.attendees}}</td>
+                        <td>{{booking.cuisine}} ({{booking.food_type}})</td>
+                        <td>{{booking.food_items}}</td>
+                        <td>
+                            <a href="#theme" data-some-value="{{booking.theme}}" data-toggle="modal" data-target="#theme" class="image theme_modal">{{booking.theme}}</a>
+                            <!-- Theme modal -->
+                            <div class="modal fade" id="theme" tabindex="-1" aria-labelledby="theme" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="title_"></h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <img src="" alt="" height="300px" id="image_">
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{booking.band_name}}</td>
+                        <td>{{booking.cost}}</td>
+                        {% if booking.status=='Completed' %}
+                            <td><span class="label label-success"></span>{{booking.status}}</td>   
+                        {% else %}
+                            <td><span class="label"></span>{{booking.status}}</td> 
+                        {% endif %}  
+                    </tr>
+                    {% endfor %}
+              </tbody>
+            </table>
+            </div>
+    </div>
+
+    <script>
+
+        $(document).on("click", ".venue_modal", function () {
+            var venue_name = $(this).data('some-value');
+            console.log(venue_name);
+            document.getElementById("_title").innerHTML=venue_name;
+            var source="/static/"+venue_name+".jpg";
+            console.log(source);
+            document.getElementById("_image").src=source;
+        });
+
+        $(document).on("click", ".theme_modal", function () {
+            var venue_name = $(this).data('some-value');
+            console.log(venue_name);
+            document.getElementById("title_").innerHTML=venue_name;
+            var source="/static/"+venue_name+".jpg";
+            console.log(source);
+            document.getElementById("image_").src=source;
+        });
+
+    </script>
+
+{% endblock %}

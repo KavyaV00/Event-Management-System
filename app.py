@@ -1,5 +1,4 @@
 from flask import Flask, request, make_response,session,abort,redirect,render_template, url_for, flash
-from flask_mail import Mail,Message
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, date
 from flask_admin import Admin
@@ -9,20 +8,16 @@ from wtforms.validators import ValidationError
 import imghdr
 from flask_login import login_user, current_user, logout_user, login_required  # issac
 from flask_login import UserMixin, LoginManager
-from flask_bcrypt import Bcrypt
- #issac-cir
+from flask_bcrypt import Bcrypt #issac-cir
 from datetime import datetime #Anna
+from flask_mail import Mail,Message
+from flask_admin import BaseView, expose
+from flask_admin.menu import MenuLink
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///newdb.db' #changed db #Anna
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db' #changed db #Anna
 app.config['SECRET_KEY'] = 'abababab'
-app.config['MAIL_SERVER']= 'smtp.gmail.com'
-app.config['MAIL_PORT']=465
-app.config['MAIL_USERNAME']="event2381@gmail.com"
-app.config['MAIL_PASSWORD']="admin2381"
-app.config['MAIL_USE_TLS']=False
-app.config['MAIL_USE_SSL']=True
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)  # issac
 login_manager = LoginManager(app)
@@ -49,6 +44,7 @@ class Venue(db.Model):
     capacity = db.Column(db.Integer) 
     From = db.Column(db.DateTime) #Anna
     to = db.Column(db.DateTime)   #Anna
+    url_pic = db.Column(db.String(20)) #Kavya
     cost = db.Column(db.Integer)
 
 class Food(db.Model): 
@@ -61,8 +57,7 @@ class Food(db.Model):
 class Decoration(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     theme_name = db.Column(db.String(50)) 
-    url_pic = db.Column(db.String(50))
-    pic = db.Column(db.LargeBinary)  ### Add theme photo
+    url_pic = db.Column(db.String(50))### Add theme photo
     cost = db.Column(db.Integer)
 
 class Band(db.Model):
@@ -86,36 +81,10 @@ class Bookings(db.Model):
     band_name = db.Column(db.String(25))
     status = db.Column(db.String(20), default='Pending')
     manager_id = db.Column(db.Integer, db.ForeignKey('manager.id'))
+    cost = db.Column(db.Integer)
 
 from forms import RegistrationForm, LoginForm #issac
-class DecorationAdminView(ModelView):   ### To upload image, but image not getting uploaded. getattr() returning None
 
-    def picture_validation(form, field):
-        if field.data:
-            filename = field.data.filename
-            if filename[-4:] != '.jpg': 
-                raise ValidationError('file must be .jpg')
-            if imghdr.what(field.data) != 'jpeg':
-                raise ValidationError('Enter valid jpeg img')
-        field.data = field.data.stream.read()
-        return True
-
-    form_columns = ['id', 'theme_name', 'url_pic', 'pic']
-    column_labels = dict(id='ID', theme_name="theme_name", url_pic="Picture's URL", pic='Picture')
-    # print(column_labels)
-
-    def pic_formatter(view, context, model, name):
-        # print(getattr(model, name))
-        return 'NULL' if getattr(model, name) == None else 'a picture'
-        # return 'a picture'
-
-    column_formatters =  dict(pic=pic_formatter)
-    form_overrides = dict(pic= FileUploadField)
-    form_args = dict(pic=dict(validators=[picture_validation]))
-    # print(column_formatters)
-    # print(form_overrides)
-    # print(form_args)
-   
 ### Admin Permissions
 
 admin = Admin(app, template_mode='bootstrap4') #Anna changed Admin styling
@@ -128,17 +97,21 @@ class SecureModelView(ModelView):
 
 admin.add_view(SecureModelView(Venue, db.session))
 admin.add_view(SecureModelView(Food, db.session))
-# admin.add_view(ModelView(Decoration, db.session))
 admin.add_view(SecureModelView(Band, db.session))
 admin.add_view(SecureModelView(Bookings, db.session))
 admin.add_view(SecureModelView(Manager, db.session))  ### Maybe not show the password, just viewing list of managers
-admin.add_view(DecorationAdminView(Decoration, db.session))
+admin.add_view(SecureModelView(Decoration, db.session))
 
+flag=0
 @app.route("/alogin",methods=['GET','POST'])
 def alogin():
     if request.method=='POST':
         if request.form.get('Username')== "Admin" and request.form.get('Password')=='Admin':
             session['logged_in']=True
+            global flag
+            if flag==0:
+                admin.add_link(MenuLink(name='Logout', url=url_for('alogout')))
+                flag=1
             return redirect("/admin")
         else:
             return render_template("/admin/alogin.html",failed=True)
@@ -149,6 +122,7 @@ def alogout():
     session.clear()
     return redirect("/alogin")
 
+@app.route("/")
 @app.route("/register", methods=['GET', 'POST'])  # issac
 def register():
     if current_user.is_authenticated:
@@ -174,96 +148,115 @@ def login():
         if manager and bcrypt.check_password_hash(manager.password, form.password.data):
             login_user(manager, remember=form.remember.data)
             next_page = request.args.get('next')
+            session['manager'] = current_user.get_id()
+            print(session['manager'], '****')
             return redirect(next_page) if next_page else redirect(url_for('home'))
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template('login.html', title='Login', form=form)
 
-@app.route("/home") #issac
-@login_required
-def home():
-    return "Hello Manager!"
+# @app.route("/home") #issac
+# @login_required
+# def home():
+#     return "Hello Manager!"
     # render_template('home.html', posts=posts)
+
 @app.route("/logout") #issac
 def logout():
     logout_user()
     flash('You have been logged out!', 'success')
     return redirect(url_for('login'))
 
+#Anna
 
-#Anna/swathi
+@app.route('/home')
+# @app.route('/theme')
+@login_required
+def home():
+    return render_template('base.html')
+# @app.route('/addtheme/<id>',methods=['GET','POST'])
+
 mail=Mail(app)
 @app.route('/bookings')
 @app.route('/theme')
 def theme():
     dec = Decoration.query.all()
     return render_template('theme.html',dec=dec)
+
 # @app.route('/addtheme/<id>',methods=['GET','POST'])
 @app.route('/bookings/<name>',methods=['GET','POST'])
 def bookings(name):
     
-     if request.method == 'POST':
+    if request.method == 'POST':
         event = request.form['event']
-        venue = request.form['venue']
+        venue = request.form['_venue_']
         attendees = request.form['attendees']
         date = request.form['date']
         time = request.form['time']
         totime = request.form['totime']
-        cuisine = request.form['cuisine']
+        cuisine = request.form['_cuisine_']
         fitems = request.form['fitems']
         ftype = request.form['ftype']
-        band = request.form['band']
+        band = request.form['_band_']
         db_date = datetime.strptime(date,'%Y-%m-%d')
         time = datetime.strptime(time,'%H:%M')
         totime = datetime.strptime(totime,'%H:%M')
+        total_cost= request.form['total_cost_'] # hidden
+        print(total_cost)
         manager_id=current_user.get_id()
-
         # finaldate = datetime.strftime(db_date,'%Y%m%d')
         # print(finaldate)
+        # cuisine = Food.query.get(food_id).cuisine
+        print(cuisine, venue, band)
+        # venue_cost = Venue.query.filter_by(venue_name=venue).first().cost
+        # food_cost = int(Food.query.filter_by(id=food_id).first().cost_per_head)*int(attendees)
+        # band_cost = Band.query.filter_by(band_name=band).first().cost
+        # decoration_cost = Decoration.query.filter_by(theme_name=name).first().cost
+        # print(venue_cost,'venue_cost')
+        # print(food_cost,'food_cost')
+        # print(band_cost,'band_cost')
+        # id=session['manager']
+        
+        # total_cost = venue_cost+food_cost+band_cost+decoration_cost
         theme_obj = Bookings(event_name=event,venue_name=venue,attendees=attendees, \
                                 date=db_date,_from=time,_to=totime,theme=name,cuisine=cuisine,\
-                                food_items=fitems,food_type=ftype,band_name=band,manager_id=manager_id,status="Confirmed")
+                                food_items=fitems,food_type=ftype,band_name=band,manager_id=manager_id, \
+                                cost=total_cost, status="Confirmed")
         db.session.add(theme_obj)
         db.session.commit()
-        print(manager_id)
-        email=Manager.query.get(manager_id).email
-        print(email)
-        booking=Bookings.query.filter_by(id=manager_id).all()
-        for booking in booking:
-            msg="Booking successful!!\n\n\nBooking Details:\n"+ "Event: " + booking.event_name + "\nVenue: "+booking.venue_name + "\nDate: " + booking.date.strftime("%d/%m/%Y") \
-            + "\nTime: " + booking._from.strftime("%H:%M") + "-" + booking._to.strftime("%H:%M") + "\nTheme: " + booking.theme + "\nCuisine: " + booking.cuisine \
-            + "\nBand: " + booking.band_name + "\n\n\nThank You for using our service!"
-        subject="Booking Info"
-        message=Message(subject=subject,sender="event2381@gmail.com",recipients=[email])
-        message.body=msg
-        mail.send(message)
-    venue_obj = Venue.query.all()
-    food_obj= Food.query.all()
-    band = Band.query.all()
-    return render_template('bookings.html',venue=venue_obj,food=food_obj,band=band)
-#EndAnna/swathi
+        return redirect('/home')
+        # print(manager_id)
+        # email=Manager.query.get(manager_id).email
+        # print(email)
+        # booking=Bookings.query.filter_by(id=manager_id).all()
+        # for booking in booking:
+        #     msg="Booking successful!!\n\n\nBooking Details:\n"+ "Event: " + booking.event_name + "\nVenue: "+booking.venue_name + "\nDate: " + booking.date.strftime("%d/%m/%Y") \
+        #     + "\nTime: " + booking._from.strftime("%H:%M") + "-" + booking._to.strftime("%H:%M") + "\nTheme: " + booking.theme + "\nCuisine: " + booking.cuisine \
+        #     + "\nBand: " + booking.band_name + "\n\n\nThank You for using our service!"
+        # subject="Booking Info"
+        # message=Message(subject=subject,sender="event2381@gmail.com",recipients=[email])
+        # message.body=msg
+        # mail.send(message)
+    venue_obj = Venue.query.with_entities(Venue.id, Venue.venue_name, Venue.cost).all()
+    food_obj= Food.query.with_entities(Food.id, Food.cuisine, Food.cost_per_head, Food.food_items).all()
+    band_obj = Band.query.with_entities(Band.id, Band.band_name, Band.cost).all()
+    
+    l=[]
+    for x in food_obj:
+        l.append(x.food_items)
+    print(l)
+    decoration_cost = Decoration.query.filter_by(theme_name=name).first().cost
+    return render_template('bookings.html',venue=venue_obj,food=food_obj,band=band_obj,l=l, decoration=name, decoration_cost=decoration_cost)
+    
+@app.route('/viewbookings') #Kavya
+def viewbookings():
+    id = session['manager']
+    bookings = Bookings.query.filter_by(manager_id=id).all()
+    return render_template('viewbookings.html', bookings=bookings)
 
-
-### Admin authorization - A
-
-# class AdminView(ModelView):
-
-#     def is_accessible(self):
-#         return db.session.is_authenticated
-
-#     def not_auth(self):
-#         # redirect to login page if user doesn't have access
-#         # return redirect(url_for('login', next=request.url))
-#         return "You are not admin"
-
-### Admin authorization - B
-
-# @app.route('/admin')
-# def admin():
-#     if request.authorization and request.authorization.username == 'username' and request.authorization.password == 'password':
-#         return '<h1>You are logged in</h1>'
-
-#     return make_response('Could not verify!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required"'})
+@app.route('/new')
+def new():
+    return render_template('new.html')
 
 if __name__ == "__main__":
     db.create_all()
