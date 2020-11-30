@@ -167,13 +167,17 @@ def logout():
     flash('You have been logged out!', 'success')
     return redirect(url_for('login'))
 
-#Anna
+
 
 @app.route('/home')
 # @app.route('/theme')
 @login_required
 def home():
-    return render_template('base.html')
+     if 'manager' in session:
+        venue=Venue.query.all()
+        food=Food.query.all()
+        band=Band.query.all()
+        return render_template('home.html',venue=venue,food=food,band=band)
 # @app.route('/addtheme/<id>',methods=['GET','POST'])
 
 mail=Mail(app)
@@ -226,17 +230,17 @@ def bookings(name):
         db.session.commit()
         return redirect('/home')
         # print(manager_id)
-        # email=Manager.query.get(manager_id).email
+         email=Manager.query.get(manager_id).email
         # print(email)
-        # booking=Bookings.query.filter_by(id=manager_id).all()
-        # for booking in booking:
-        #     msg="Booking successful!!\n\n\nBooking Details:\n"+ "Event: " + booking.event_name + "\nVenue: "+booking.venue_name + "\nDate: " + booking.date.strftime("%d/%m/%Y") \
-        #     + "\nTime: " + booking._from.strftime("%H:%M") + "-" + booking._to.strftime("%H:%M") + "\nTheme: " + booking.theme + "\nCuisine: " + booking.cuisine \
-        #     + "\nBand: " + booking.band_name + "\n\n\nThank You for using our service!"
-        # subject="Booking Info"
-        # message=Message(subject=subject,sender="event2381@gmail.com",recipients=[email])
-        # message.body=msg
-        # mail.send(message)
+         booking=Bookings.query.filter_by(id=manager_id).all()
+         for booking in booking:
+             msg="Booking successful!!\n\n\nBooking Details:\n"+ "Event: " + booking.event_name + "\nVenue: "+booking.venue_name + "\nDate: " + booking.date.strftime("%d/%m/%Y") \
+             + "\nTime: " + booking._from.strftime("%H:%M") + "-" + booking._to.strftime("%H:%M") + "\nTheme: " + booking.theme + "\nCuisine: " + booking.cuisine \
+             + "\nBand: " + booking.band_name + "\n\n\nThank You for using our service!"
+         subject="Booking Info"
+         message=Message(subject=subject,sender="event2381@gmail.com",recipients=[email])
+         message.body=msg
+         mail.send(message)
     venue_obj = Venue.query.with_entities(Venue.id, Venue.venue_name, Venue.cost).all()
     food_obj= Food.query.with_entities(Food.id, Food.cuisine, Food.cost_per_head, Food.food_items).all()
     band_obj = Band.query.with_entities(Band.id, Band.band_name, Band.cost).all()
