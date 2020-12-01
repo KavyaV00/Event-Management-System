@@ -6,10 +6,10 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.form.upload import FileUploadField
 from wtforms.validators import ValidationError
 import imghdr
-from flask_login import login_user, current_user, logout_user, login_required  
+from flask_login import login_user, current_user, logout_user, login_required  # issac
 from flask_login import UserMixin, LoginManager
 from flask_bcrypt import Bcrypt #issac-cir
-from datetime import datetime 
+from datetime import datetime #Anna
 from flask_mail import Mail,Message
 from flask_admin import BaseView, expose
 from flask_admin.menu import MenuLink
@@ -18,12 +18,6 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db' #changed db #Anna
 app.config['SECRET_KEY'] = 'abababab'
-app.config['MAIL_SERVER']='smtp.gmail.com'
-app.config['MAIL_PORT']=465
-app.config['MAIL_USERNAME']='event2381@gmail.com'
-app.config['MAIL_PASSWORD']='admin2381'
-app.config['MAIL_USE_TLS']=False
-app.config['MAIL_USE_SSL']=True
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)  # issac
 login_manager = LoginManager(app)
@@ -93,7 +87,7 @@ from forms import RegistrationForm, LoginForm #issac
 
 ### Admin Permissions
 
-admin = Admin(app, template_mode='bootstrap4') 
+admin = Admin(app, template_mode='bootstrap4') #Anna changed Admin styling
 class SecureModelView(ModelView):
     def is_accessible(self):
         if "logged_in" in session:
@@ -129,7 +123,7 @@ def alogout():
     return redirect("/alogin")
 
 @app.route("/")
-@app.route("/register", methods=['GET', 'POST'])  
+@app.route("/register", methods=['GET', 'POST'])  # issac
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
@@ -144,7 +138,7 @@ def register():
     return render_template('register.html', title='Register', form=form) #issac
 
 
-@app.route("/login", methods=['GET', 'POST'])   
+@app.route("/login", methods=['GET', 'POST'])   #issac
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
@@ -173,7 +167,14 @@ def logout():
     flash('You have been logged out!', 'success')
     return redirect(url_for('login'))
 
+#Anna
 
+# @app.route('/home')
+# # @app.route('/theme')
+# @login_required
+# def home():
+#     return render_template('base.html')
+# # @app.route('/addtheme/<id>',methods=['GET','POST'])
 
 @app.route('/home')
 # @app.route('/theme')
@@ -184,7 +185,6 @@ def home():
         food=Food.query.all()
         band=Band.query.all()
         return render_template('home.html',venue=venue,food=food,band=band)
-# @app.route('/addtheme/<id>',methods=['GET','POST'])
 
 mail=Mail(app)
 @app.route('/bookings')
@@ -234,21 +234,19 @@ def bookings(name):
                                 cost=total_cost, status="Confirmed")
         db.session.add(theme_obj)
         db.session.commit()
-        # print(manager_id)
-        email=Manager.query.get(manager_id).email
-        # print(email)
-        booking=Bookings.query.filter_by(manager_id=manager_id).all()
-        print(booking)
-        for booking in booking:
-            msg="Booking successful!!\n\n\nBooking Details:\n"+ "Event: " + booking.event_name + "\nVenue: "+booking.venue_name + "\nDate: " + booking.date.strftime("%d/%m/%Y") \
-            + "\nTime: " + booking._from.strftime("%H:%M") + "-" + booking._to.strftime("%H:%M") + "\nTheme: " + booking.theme + "\nCuisine: " + booking.cuisine \
-            + "\nBand: " + booking.band_name + "\n\n\nThank You for using our service!"
-        subject="Booking Info"
-        #print(msg)
-        message=Message(subject=subject,sender="event2381@gmail.com",recipients=[email])
-        message.body=msg
-        mail.send(message)
         return redirect('/home')
+        # print(manager_id)
+        # email=Manager.query.get(manager_id).email
+        # print(email)
+        # booking=Bookings.query.filter_by(id=manager_id).all()
+        # for booking in booking:
+        #     msg="Booking successful!!\n\n\nBooking Details:\n"+ "Event: " + booking.event_name + "\nVenue: "+booking.venue_name + "\nDate: " + booking.date.strftime("%d/%m/%Y") \
+        #     + "\nTime: " + booking._from.strftime("%H:%M") + "-" + booking._to.strftime("%H:%M") + "\nTheme: " + booking.theme + "\nCuisine: " + booking.cuisine \
+        #     + "\nBand: " + booking.band_name + "\n\n\nThank You for using our service!"
+        # subject="Booking Info"
+        # message=Message(subject=subject,sender="event2381@gmail.com",recipients=[email])
+        # message.body=msg
+        # mail.send(message)
     venue_obj = Venue.query.with_entities(Venue.id, Venue.venue_name, Venue.cost).all()
     food_obj= Food.query.with_entities(Food.id, Food.cuisine, Food.cost_per_head, Food.food_items).all()
     band_obj = Band.query.with_entities(Band.id, Band.band_name, Band.cost).all()
@@ -260,7 +258,7 @@ def bookings(name):
     decoration_cost = Decoration.query.filter_by(theme_name=name).first().cost
     return render_template('bookings.html',venue=venue_obj,food=food_obj,band=band_obj,l=l, decoration=name, decoration_cost=decoration_cost)
     
-@app.route('/viewbookings') 
+@app.route('/viewbookings') #Kavya
 def viewbookings():
     id = session['manager']
     bookings = Bookings.query.filter_by(manager_id=id).all()
@@ -269,6 +267,10 @@ def viewbookings():
 @app.route('/new')
 def new():
     return render_template('new.html')
+
+@app.route('/checkout')
+def checkout():
+    return render_template('checkout.html')
 
 if __name__ == "__main__":
     db.create_all()

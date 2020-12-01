@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+
+{%block body%}
+<!-- Anna -->
+
+<script>
+    function filter_cuisine(obj) {
+        cuisineid=obj.id
+        console.log(obj)
+        obj=obj.slice(1,-1)
+        obj=obj.split(', ')
+        console.log(Array.from(obj))
+        cuisineid=obj[0]
+        console.log(cuisineid)
+        var l = {{ l|safe }}
+        var fitemname = l[cuisineid-1];
+        document.getElementById('fitems').value = fitemname; 
+        document.getElementById('_food').innerHTML = obj[1].slice(1,-1) + ' Cusine'
+        var attendees = document.getElementById('attendees').value
+        console.log(attendees)
+        cost=document.getElementById('total_cost').innerHTML
+        if (document.getElementById('_food_cost').innerHTML!=0) {
+            console.log(document.getElementById('_food_cost').innerHTML)
+           current_cost=document.getElementById('_food_cost').innerHTML
+           current_cost=current_cost.slice(4,)
+           cost=parseInt(cost)-parseInt(current_cost)
+           document.getElementById('total_cost').innerHTML=cost // cart
+            document.getElementById('total_cost_').value=cost
+        }
+        document.getElementById('_food_cost').innerHTML = 'Rs. ' + obj[2] * attendees
+        document.getElementById('_cuisine_').value = obj[1].slice(1,-1) 
+        cost=document.getElementById('total_cost').innerHTML
+        cost=parseInt(cost)+obj[2]*attendees
+        document.getElementById('total_cost').innerHTML=cost
+        document.getElementById('total_cost_').value=cost
+    }
+
+    function get_cost(obj, _id) {
+        console.log(obj, _id);
+        console.log(obj[1])
+        obj=obj.slice(1,-1)
+        obj=obj.split(', ')
+        console.log(obj, _id);
+        console.log(Array.from(obj))
+        console.log(_id+'_','ee')
+        document.getElementById(_id+ '_').value = obj[1].slice(1,-1)  // input tag 
+        document.getElementById(_id).innerHTML = obj[1].slice(1,-1) // cart
+
+        new_id = _id + '_cost'
+        cost=document.getElementById('total_cost').innerHTML
+        if (document.getElementById(new_id).innerHTML!=0) {
+            console.log(document.getElementById(new_id).innerHTML)
+           current_cost=document.getElementById(new_id).innerHTML
+           current_cost=current_cost.slice(4,)
+           cost=parseInt(cost)-parseInt(current_cost)
+           document.getElementById('total_cost').innerHTML=cost // cart
+            document.getElementById('total_cost_').value=cost
+        }
+        document.getElementById(new_id).innerHTML = 'Rs. ' + obj[2]
+        cost=document.getElementById('total_cost').innerHTML // current cost
+        cost=parseInt(cost)+parseInt(obj[2]) // calculate new cost
+        document.getElementById('total_cost').innerHTML=cost // cart
+        document.getElementById('total_cost_').value=cost // input tag(hidden)
+    }
+
+</script>
+
+<br>
+<div class="container theme-showcase col-sm-offset-3" role="main">
+
+    
+      <div class="row">
+        <div class="col-md-4 order-md-2 mb-4">
+            <h4 class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted">Your cart</span>
+            </h4>
+            <ul class="list-group mb-3 sticky-top">
+                <li class="list-group-item d-flex justify-content-between lh-condensed">
+                    <div>
+                        <h6 class="my-0">Venue</h6>
+                        <small class="text-muted" id="_venue"></small>
+                    </div>
+                    <span class="text-muted" id="_venue_cost">0</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between lh-condensed">
+                    <div>
+                        <h6 class="my-0">Food</h6>
+                        <small class="text-muted" id="_food"></small>
+                    </div>
+                    <span class="text-muted" id="_food_cost">0</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between lh-condensed">
+                    <div>
+                        <h6 class="my-0">Music</h6>
+                        <small class="text-muted" id="_band"></small>
+                    </div>
+                    <span class="text-muted" id="_band_cost">0</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between lh-condensed">
+                    <div>
+                        <h6 class="my-0">Decoration</h6>
+                        <small class="text-muted">{{decoration}}</small>
+                    </div>
+                    <span class="text-muted">Rs. {{decoration_cost}}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Total Cost (Rs.)</span>
+                    <strong id="total_cost">{{decoration_cost}}</strong>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-8 order-md-1">
+        <div class="panel panel-primary">
+
+          <div class="panel-heading">
+            <h3 class="panel-title">Book</h3>
+          </div>
+
+          <div class="panel-body">
+
+            <form method="POST" action="">
+              <div class="form-group">
+                <div class="form-group">
+                    <label for="event">Event</label>
+                    
+                
+                        <input type="text" class="form-control" id="event" name="event" placeholder="" required>
+                    
+                </div> 
+                
+
+                <div class="form-group">
+                    <label for="venue">Venue</label>
+                        <select name="band"  onchange="get_cost(this.value, '_venue')">
+                            <option value= ""></option>
+                        <!-- <input type="text" class="form-control" id="venue" name="venue" placeholder="" required> -->
+                    {% for v in venue %}
+                    <option value= "{{v}}">{{v.venue_name}}</option>
+                   {% endfor%}
+                </select>
+                    
+                </div> 
+
+                <div class="form-group">
+                        <input type="text" class="form-control" id="_venue_" name="_venue_" placeholder="" required>
+                </div>
+
+                 <div class="form-group">
+                    <label for="attendees">Count of Attendees</label>
+                        <input type="number" class="form-control" id="attendees" name="attendees" placeholder="" required>
+                    
+                </div>
+            <div class="form-group"></div>
+                <div class="form-group">
+                    <label for="date">Enter date</label>
+                        <input type="date" class="form-control" id="date" name="date" placeholder="" required>
+                    
+</div>
+              
+                <div class="form-group">
+                    <label for="time">Enter time</label>
+                        <input type="time" class="form-control" id="time" name="time" placeholder="" required>
+                    
+                </div>
+                <div class="form-group">
+                    <label for="totime">Upto time</label>
+                        <input type="time" class="form-control" id="totime" name="totime" placeholder="" required>
+                    
+                </div>
+                <div class="form-group">
+                    <label for="cuisine">Cuisine</label>
+                        <!-- <input type="text" class="form-control" id="cuisine" name="cuisine" placeholder="" required> -->
+                        <select name="cuisine"  onchange="filter_cuisine(this.value)">
+                            <option value= ""></option>
+                            {% for f in food %}
+                            <option value= "{{f}}">{{f.cuisine}}</option> 
+                           {% endfor%}
+                        </select> 
+                </div> 
+
+                <div class="form-group">
+                    <input type="text" class="form-control" id="_cuisine_" name="_cuisine_" placeholder="" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fitems">Food items</label>
+                        <input type="text" class="form-control" id="fitems" name="fitems" placeholder="" required>
+                        
+                    
+                </div> 
+        
+                <div class="form-group">
+                    <label for="ftype">Food type </label>
+                        <input type="text" class="form-control" id="ftype" name="ftype" placeholder="" required>
+                    
+                </div> 
+                
+                <div class="form-group">
+                    <label for="band">Band Name</label>
+                        <!-- <input type="text" class="form-control" id="band" name="band" placeholder="" required> -->
+                        <select name="band"  onchange="get_cost(this.value, '_band')">
+                            <option value= ""></option> 
+                            {% for b in band %}
+                            <option value= "{{b}}">{{b.band_name}}</option>
+                           {% endfor%}
+                        </select>
+                    
+                </div> 
+                
+                <div class="form-group">
+                    <input type="text" class="form-control" id="_band_" name="_band_" placeholder="" required>
+            </div>
+                <input type="" id="total_cost_" name="total_cost_" placeholder="" style="display: none;">
+            </div>
+              <div style="margin-bottom: 50px; text-align: center;">
+                <button type="submit" class="btn btn-primary" style="width: 50%; ">Book</button>
+              </div>
+              
+            
+            </form>
+            </div>
+        </div>
+      </div>
+</div>
+  </div>
+  {% endblock %}

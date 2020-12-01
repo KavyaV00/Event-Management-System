@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title%}Welcome Page{% endblock %}
+{% block head %}
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Sansita+Swashed&display=swap" rel="stylesheet">
+<style>
+
+/* Add some padding inside the card container */
+.container {
+  padding: 2px 16px;
+}
+</style>
+{% endblock%}
+{% block body %}
+
+<div class="container">
+    <br>
+    <h2 style="font-family: 'Sansita Swashed', cursive;">Find your perfect venue...</h2>
+    <div class="row">
+        {% for v in venue %}
+        
+            <div class="col-sm-4" style="padding-bottom: 10px; padding-right: 0px;">
+                <div class="card" style="width: 18rem; height: 22rem;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);transition: 0.3s; border-color: black; ">
+                    <img src="{{v.url_pic}}" class="card-img-top" alt="" style="width: 285px; height: 190px;">
+                    <div class="container">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ v.venue_name }}</h5>
+                            <p class="card-text">Capacity: {{ v.capacity }}</p>
+                            <p class="card-text">Cost: {{ v.cost }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          
+                
+        {% endfor %}
+    </div>
+    <br>
+    <br>
+    <h2 style="font-family: 'Sansita Swashed', cursive;">We serve you the best food...</h2>
+    <div class="row">
+        {% for f in food %}
+        
+            <div class="col-sm-4">
+                    <div class="container">
+                        <div class="card text-white bg-dark mb-3" style="max-width: 19rem; height: 15rem;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);transition: 0.3s;">
+                            <div class="card-header" style="background-color:wheat; color: black;">{{f.cuisine}}</div>
+                            <div class="card-body">
+                              <p class="card-text">Items: {{f.food_items}}</p>
+                              <p class="card-text">Beverages: {{f.beverages}}</p>
+                              <p class="card-text">Per head cost: {{f.cost_per_head}}</p>
+                            </div>
+                        </div>   
+                    </div>
+            </div>
+        
+          
+                
+        {% endfor %}
+    </div>
+    <br>
+    <br>
+    <h2 style="font-family: 'Sansita Swashed', cursive;">Entertain your audience...</h2>
+    <div class="row">
+        {% for b in band %}
+        
+            <div class="col-sm-4">
+                    <div class="container">
+                        <div class="card text-white bg-secondary mb-3" style="max-width: 19rem; height: 12rem;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);transition: 0.3s;">
+                            <div class="card-header" style="background-color: brown;">{{b.band_name}}</div>
+                            <div class="card-body">
+                              <p class="card-text">Genre: {{b.genre}}</p>
+                              <p class="card-text">Cost: {{b.cost}}</p>
+                            </div>
+                          </div>   
+                    </div>
+            </div>
+
+        {% endfor %}
+    </div>
+  </div>   
+</div>
+</div>
+
+{% endblock %}
