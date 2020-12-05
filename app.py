@@ -122,7 +122,7 @@ def alogout():
     session.clear()
     return redirect("/alogin")
 
-@app.route("/")
+
 @app.route("/register", methods=['GET', 'POST'])  # issac
 def register():
     if current_user.is_authenticated:
@@ -271,6 +271,10 @@ def new():
 @app.route('/checkout')
 def checkout():
     return render_template('checkout.html')
+
+@app.route('/')
+def default():
+    return render_template('index.html')
 
 if __name__ == "__main__":
     db.create_all()
