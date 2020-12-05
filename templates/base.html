@@ -1,0 +1,54 @@
+<!-- Anna -->
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Booking</title>
+  <meta charset="UTF-8">
+  
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css'>
+
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css'>
+    <link rel="stylesheet" href="/static/style.css">
+
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand navbar-logo" href="/home">EventBrite</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars text-white"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/home"><i class="fas fa-tachometer-alt"></i>Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/bookings"><i class="fas fa-address-book"></i>Book</a>
+                </li>
+                <!-- <li class="nav-item active">
+                    <a class="nav-link" href="javascript:void(0);"><i class="far fa-clone"></i>Payment</a>
+                </li> -->
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="/viewbookings"><i class="far fa-clone"></i>Booking History</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li>
+               
+            </ul>
+        </div>
+    </nav>
+<!-- partial -->
+  <script src='https://code.jquery.com/jquery-3.4.1.min.js'></script>
+<script src='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js'></script>
+<script  src="/static/script.js"></script>
+
+{%block body%}
+{% endblock %}
+</body>
+</html>
