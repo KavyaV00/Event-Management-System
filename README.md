@@ -12,3 +12,6 @@ Vendor -Specific List: Generate specialized list of products and services ordere
 * SQLAlchemy
 * Python
 * Flask
+* HTML
+* CSS
+* JavaScript
